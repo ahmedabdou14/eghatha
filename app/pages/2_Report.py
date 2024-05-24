@@ -91,6 +91,7 @@ def main():
             "Context",
             placeholder="Use the button below to convert voice-to-text",
             value=st.session_state.get(StateKey.CONTEXT, ""),
+            key=StateKey.CONTEXT,
         )
         stt = speech_to_text(language="en", just_once=True, key="STT")
         if stt:
@@ -109,9 +110,11 @@ def main():
                         tags=st.session_state[StateKey.TAGS_GENERATED],
                         context=st.session_state[StateKey.CONTEXT],
                     )
-                except Exception:
+                except Exception as e:
+                    print(e)
                     st.error("Failed to report the incident.")
-                st.success("Thank you for reporting the incident. Our team is on it!")
+                else:
+                    st.success("Thank you for reporting the incident. Our team is on it!")
 
 
 main()

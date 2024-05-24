@@ -28,7 +28,7 @@ class Incident(Base):
     lat: Mapped[float] = mapped_column()
     lon: Mapped[float] = mapped_column()
     priority: Mapped[int] = mapped_column()
-    created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     created_by: Mapped[int] = mapped_column(ForeignKey("user.id"))
 
     @property
