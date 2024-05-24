@@ -5,14 +5,18 @@ from PIL import Image
 import base64
 from openai import OpenAI
 from streamlit_tags import st_tags
-
-from streamlit_mic_recorder import mic_recorder, speech_to_text
+from db.session import get_db
+from db.models import Incident
+from utils import gen_location
+from streamlit_mic_recorder import speech_to_text
 
 import settings
+import time
 
 class StateKey(StrEnum):
     TAGS_GENERATED = 'tags_generated'
     IMAGE_NAME = 'image_name'
+    CONTEXT = 'context'
 
 client = OpenAI(api_key=settings.OPENAPI_KEY)
 
@@ -52,6 +56,23 @@ def extract_tags(description: str) -> list[str]:
     """Extracts tags from the description."""
     return [tag.strip() for tag in description.split("\n") if tag]
 
+def report(
+    img: str,
+    tags: list[str],
+    context: str,
+):
+    db = get_db()
+    lat, lon = gen_location()
+    incident = Incident(
+        image=img,
+        tags=tags,
+        context=context,
+        lat=lat,
+        lon=lon,
+    )
+    db.add(incident)
+    db.commit()
+    
 def main():
     st.title('Incident Reporting Form')
     
@@ -76,21 +97,37 @@ def main():
                     tags = extract_tags(description)
                     st.session_state[StateKey.TAGS_GENERATED] = tags
 
-        st_tags(
+        tags = st_tags(
             label='Tags',
             text='Type and press enter',
             value=tags,
             suggestions=['Urgent', 'Help', 'Assistance', 'Emergency', 'Disaster'],
             maxtags=10,
-            key='tags'
+            key=StateKey.TAGS_GENERATED
         )
 
         st.session_state[StateKey.IMAGE_NAME] = uploaded_file.name
 
-        context = st.text_input("Context", placeholder="Use the button below to convert voice-to-text")
+        st.text_input("Context", placeholder="Use the button below to convert voice-to-text", value=st.session_state.get(StateKey.CONTEXT, ''))
         stt = speech_to_text(language='en', just_once=True, key='STT')
         if stt:
-            context = stt
-
+            st.session_state[StateKey.CONTEXT] = stt
+            st.rerun()
+        
+        if st.button('Submit'):
+            if not st.session_state.get(StateKey.TAGS_GENERATED, None):
+                st.error('Please generate tags before submitting.')
+            if not st.session_state.get(StateKey.CONTEXT, None):
+                st.error('Please provide context before submitting.')
+            else:
+                try:
+                    report(
+                        img=get_image_base64(uploaded_file),
+                        tags=st.session_state[StateKey.TAGS_GENERATED],
+                        context=st.session_state[StateKey.CONTEXT],
+                    )
+                except Exception:
+                    st.error('Failed to report the incident.')
+                st.success('Thank you for reporting the incident. Our team is on it!')        
 
 main()
