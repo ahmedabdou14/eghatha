@@ -57,6 +57,13 @@ def main():
             icon=folium.Icon(color=priority_color(incident.priority), icon="info-sign"),
         ).add_to(eventsMap)
 
+    # Add you here mark
+    folium.Marker(
+        location=get_mid_location(),
+        tooltip="You are here",
+        icon=folium.Icon(color="black", icon="location-arrow", prefix="fa"),
+    ).add_to(eventsMap)
+
     st_folium(eventsMap, width=1500, height=700)
 
 
