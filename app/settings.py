@@ -7,3 +7,5 @@ DB_HOST: str = os.environ.get("db_host") or ""
 DB_PASSWORD: str = os.environ.get("db_password") or ""
 
 OPENAPI_KEY: str = os.environ.get("openapi_key") or ""
+
+ENV: str = os.environ.get("env") or "dev"

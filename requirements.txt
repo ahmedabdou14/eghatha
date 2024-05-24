@@ -9,6 +9,7 @@ psycopg2-binary
 streamlit-chat
 st-annotated-text
 streamlit-tags==1.2.8
+st-pages==0.4.5
 
 openai==1.30.2
 streamlit-js-eval==0.1.7

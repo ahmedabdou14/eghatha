@@ -1,3 +1,4 @@
+import st_pages
 import streamlit as st
 from enum import StrEnum
 from openai import OpenAI
@@ -7,6 +8,8 @@ from streamlit_mic_recorder import speech_to_text
 from utils import img_to_base64
 
 import settings
+
+st_pages.hide_pages(["incident"])
 
 
 class StateKey(StrEnum):

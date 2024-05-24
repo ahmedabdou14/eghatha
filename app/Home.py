@@ -2,14 +2,17 @@ import folium
 import streamlit as st
 from PIL import Image
 import pathlib
+import settings
 from service.incident import get_incidents
 from utils import get_mid_location, priority_color
 from streamlit_folium import st_folium
+import st_pages
 
 try:
     im = Image.open(pathlib.Path("./app/public/eghatha.jpg").absolute())
 except Exception:
     im = Image.open(pathlib.Path("./public/eghatha.jpg").absolute())
+
 
 st.set_page_config(
     page_title="Eghatha",
@@ -17,10 +20,17 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
-        "Get Help": "https://www.extreme.com",
-        "Report a bug": "https://www.extreme.com",
-        "About": "https://www.extreme.com",
+        "Get Help": "https://www.linkedin.com/in/ahmedashraf14/",
+        "Report a bug": "https://github.com/ahmedabdou14/eghatha/issues",
+        "About": "https://github.com/ahmedabdou14/eghatha",
     },
+)
+st_pages.hide_pages(["incident"])
+
+base_url = (
+    "https://eghatha.streamlit.app"
+    if settings.ENV == "prod"
+    else "http://localhost:8501"
 )
 
 
@@ -39,7 +49,7 @@ def main():
             tooltip=incident.context,
             popup=folium.Popup(
                 html=f"""
-                    <a href='https://eghatha.streamlit.app?incident={incident.id}' target='_blank'>
+                    <a href='{base_url}/incident?id={incident.id}' target='_blank'>
                         <img src='{incident.image}' style='width: 200px;'>
                     </a>
                 """
