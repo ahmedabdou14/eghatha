@@ -33,7 +33,11 @@ class Incident(Base):
 
     @property
     def tags(self) -> list[str]:
-        return [tag.strip() for tag in self._tags.split(" ") if tag]
+        return [
+            tag.strip().strip("#")
+            for tag in self._tags.replace("*", "-").split("-")
+            if tag
+        ]
 
     @tags.setter
     def tags(self, value: list[str]):
@@ -48,12 +52,13 @@ class UserBase(Base):
     hashed_pwd: Mapped[str] = mapped_column(String)
     name: Mapped[str] = mapped_column(String)
     created_at: Mapped[dt.datetime] = mapped_column(
-        DateTime(timezone=True), index=True, server_default=func.now()
+        DateTime(timezone=True), server_default=func.now()
     )
     profession: Mapped[str] = mapped_column(String)
     skills: Mapped[list[str]] = mapped_column(
         MutableList.as_mutable(pg.ARRAY(item_type=String)), server_default="{}"
     )
+    image: Mapped[str | None] = mapped_column(nullable=True)
 
     incidents: Mapped[list["Incident"]] = relationship()
 
@@ -77,3 +82,28 @@ class Admin(UserBase):
     __mapper_args__ = {
         "polymorphic_identity": UserType.admin,
     }
+
+
+class Enrollment(Base):
+    __tablename__ = "enrollment"
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), primary_key=True)
+    incident_id: Mapped[int] = mapped_column(
+        ForeignKey("incident.id"), primary_key=True
+    )
+    created_at: Mapped[dt.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    is_approved: Mapped[bool] = mapped_column(default=False)
+
+    incident: Mapped[Incident] = relationship()
+
+
+class Message(Base):
+    __tablename__ = "message"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    incident_id: Mapped[int] = mapped_column(ForeignKey("incident.id"))
+    text: Mapped[str] = mapped_column()
+    created_by: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    created_at: Mapped[dt.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )

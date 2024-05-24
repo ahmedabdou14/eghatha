@@ -2,6 +2,7 @@ import random
 from db.models import Incident
 from utils import gen_location
 from db.session import get_db
+import streamlit as st
 
 
 def report(
@@ -26,3 +27,9 @@ def report(
 def get_incidents():
     db = get_db()
     return db.query(Incident).all()
+
+
+@st.cache_data(show_spinner=False)
+def get_incident(incident_id: int) -> Incident | None:
+    db = get_db()
+    return db.query(Incident).get(incident_id)
