@@ -32,4 +32,4 @@ def get_incidents():
 @st.cache_data(show_spinner=False)
 def get_incident(incident_id: int) -> Incident | None:
     db = get_db()
-    return db.query(Incident).get(incident_id)
+    return db.query(Incident).filter(Incident.id == incident_id).first()

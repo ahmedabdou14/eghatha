@@ -10,7 +10,7 @@ engine = create_engine(
     future=True,
     pool_pre_ping=True,
     pool_size=5,
-    pool_timeout=100,
+    pool_timeout=10,
 )
 
 

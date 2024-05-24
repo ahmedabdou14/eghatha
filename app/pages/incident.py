@@ -19,7 +19,7 @@ id = int(st.query_params.get("id", 1))
 @st.cache_data
 def get_incident(incident_id: int) -> Incident | None:
     db = get_db()
-    return db.query(Incident).get(incident_id)
+    return db.query(Incident).filter(Incident.id == incident_id).first()
 
 
 def main(id: int):
@@ -34,7 +34,13 @@ def main(id: int):
 
     st.write("\n\n")
 
-    st.text(f"Created at: {incident.created_at.strftime('%Y-%m-%d %H:%M:%S')}")
+    st.dataframe(
+        {
+            "Created at": [incident.created_at.strftime("%Y-%m-%d %H:%M:%S")],
+            "Priority": [incident.priority],
+        },
+        use_container_width=True,
+    )
     st.image(incident.image, caption="Incident Image", use_column_width=True, width=500)
 
     annotated_text(
