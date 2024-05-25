@@ -63,7 +63,7 @@ def main():
         icon=folium.Icon(color="black", icon="location-arrow", prefix="fa"),
     ).add_to(eventsMap)
 
-    st_folium(eventsMap, width=1500, height=700)
+    st_folium(eventsMap, width=1500, height=700, return_on_hover=False, returned_objects=[], key="map")
 
 
 main()
