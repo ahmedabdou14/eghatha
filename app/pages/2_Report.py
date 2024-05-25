@@ -87,10 +87,15 @@ def main():
 
         st.session_state[StateKey.IMAGE_NAME] = uploaded_file.name
 
-        t = st.text_input(
+        def on_change():
+            st.session_state[StateKey.TAGS_GENERATED] = st.session_state.get("conext", "")
+
+        st.text_input(
             "Context",
             placeholder="Use the button below to convert voice-to-text",
             value=st.session_state.get(StateKey.CONTEXT, ""),
+            key="context",
+            on_change=on_change,
         )
         stt = speech_to_text(language="en", just_once=True, key="STT")
         if stt:
